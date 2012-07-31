@@ -9,7 +9,7 @@
     <relativePath />
   </parent>
   <artifactId>fb-gae</artifactId>
-  <version>1.0.1-SNAPSHOT</version>
+  <version>1.0.1</version>
 
   <properties>
     <!-- most likely the gae and twig properties should be kept consistent with news-valet-server, which also specifies them -->
@@ -22,19 +22,19 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>fb-model</artifactId>
-      <version>1.0.1-SNAPSHOT</version>
+      <version>1.0.1</version>
     </dependency>
 
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>fb-restlet</artifactId>
-      <version>1.0.1-SNAPSHOT</version>
+      <version>1.0.1</version>
     </dependency>
 
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>fb-util</artifactId>
-      <version>1.0.1-SNAPSHOT</version>
+      <version>1.0.1</version>
     </dependency>
 
     <!-- 3rd party dependencies -->
@@ -68,4 +68,8 @@
 
 
   </dependencies>
+
+  <scm>
+    <tag>v1.0.1</tag>
+  </scm>
 </project>
