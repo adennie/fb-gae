@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.fizzbuzz</groupId>
+    <artifactId>maven-parent</artifactId>
+    <version>1.0.1</version>
+    <!-- silence the warning about the parent artifactId being different than the one in the multi-module pom.xml in the parent directory -->
+    <relativePath />
+  </parent>
+  <artifactId>fb-gae</artifactId>
+  <version>1.0.1-SNAPSHOT</version>
+
+  <properties>
+    <!-- most likely the gae and twig properties should be kept consistent with news-valet-server, which also specifies them -->
+    <gae.version>1.7.0</gae.version>
+    <twig.version>2.0-beta5</twig.version>
+  </properties>
+
+  <dependencies>
+    <!-- sibling project dependencies -->
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>fb-model</artifactId>
+      <version>1.0.1-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>fb-restlet</artifactId>
+      <version>1.0.1-SNAPSHOT</version>
+    </dependency>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>fb-util</artifactId>
+      <version>1.0.1-SNAPSHOT</version>
+    </dependency>
+
+    <!-- 3rd party dependencies -->
+    <dependency>
+      <groupId>com.google.appengine</groupId>
+      <artifactId>appengine-api-1.0-sdk</artifactId>
+      <version>${gae.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.code.twig</groupId>
+      <artifactId>twig-persist</artifactId>
+      <version>${twig.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.restlet.gae</groupId>
+      <artifactId>org.restlet</artifactId>
+      <version>${restlet.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
+
+
+  </dependencies>
+</project>
