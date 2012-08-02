@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.fizzbuzz</groupId>
@@ -11,37 +14,50 @@
   <artifactId>fb-gae</artifactId>
   <version>1.0.2-SNAPSHOT</version>
 
-  <properties>
-    <!-- most likely the gae and twig properties should be kept consistent with news-valet-server, which also specifies them -->
-    <gae.version>1.7.0</gae.version>
-    <twig.version>2.0-beta5</twig.version>
-  </properties>
+  <dependencyManagement>
+    <dependencies>
+
+      <!-- this overrides the guava version referenced by twig, which otherwise would cause the maven-enforcer-plugin to fail the build -->
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
+      </dependency>
+
+      <!-- this overrides the gae version referenced by twig, which otherwise would cause the maven-enforcer-plugin to fail the build -->
+      <dependency>
+        <groupId>com.google.appengine</groupId>
+        <artifactId>appengine-api-1.0-sdk</artifactId>
+        <version>${gae.version}</version>
+      </dependency>
+
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
     <!-- sibling project dependencies -->
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>fb-model</artifactId>
-      <version>1.0.1</version>
+      <version>1.0.2-SNAPSHOT</version>
     </dependency>
 
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>fb-restlet</artifactId>
-      <version>1.0.1</version>
+      <version>1.0.2-SNAPSHOT</version>
     </dependency>
 
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>fb-util</artifactId>
-      <version>1.0.1</version>
+      <version>1.0.2-SNAPSHOT</version>
     </dependency>
 
     <!-- 3rd party dependencies -->
     <dependency>
       <groupId>com.google.appengine</groupId>
       <artifactId>appengine-api-1.0-sdk</artifactId>
-      <version>${gae.version}</version>
     </dependency>
 
     <dependency>
@@ -64,6 +80,7 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
+      <version>${slf4j-api.version}</version>
     </dependency>
 
 
