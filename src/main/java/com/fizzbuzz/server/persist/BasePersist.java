@@ -53,7 +53,8 @@ public class BasePersist {
     }
 
     // run the Transactable in a transaction. Retry indefinitely if ConcurentModificationExceptions occur.
-    public static void repeatInTransaction(final Transactable t, final boolean mustBeOuterTx)
+    public static void repeatInTransaction(final Transactable t,
+            final boolean mustBeOuterTx)
     {
         while (true)
         {
@@ -80,7 +81,8 @@ public class BasePersist {
         return t.getResult();
     }
 
-    private static void runInTransaction(final Transactable t, final boolean mustBeOuterTx) {
+    private static void runInTransaction(final Transactable t,
+            final boolean mustBeOuterTx) {
         BasePersist p = new BasePersist();
         p.doTransaction(t, mustBeOuterTx);
     }
@@ -89,7 +91,8 @@ public class BasePersist {
      * Executes the task in a transaction. If a timeout occurs, retry a few times, with an exponential backoff. GAE
      * automatically retries non-transactional datastore operations, but for transactions, we have to do it ourselves.
      */
-    private void doTransaction(final Transactable task, final boolean mustBeOuterTx)
+    private void doTransaction(final Transactable task,
+            final boolean mustBeOuterTx)
     {
         boolean done = false;
         for (Integer tryCount = 0, retryWaitMs = 100; !done && tryCount < MAX_TRIES; tryCount++, retryWaitMs *= 2)
@@ -174,17 +177,28 @@ public class BasePersist {
         if (tx != null) {
             Logger logger = LoggerFactory.getLogger(LoggingManager.TAG);
             logger.trace("Committing transaction {} for thread {}", tx, Thread.currentThread().getId());
-            tx.commit();
-            getDs().removeTransaction();
+
+            try {
+                tx.commit();
+            }
+            finally {
+                getDs().removeTransaction();
+            }
         }
     }
 
     private static void rollbackTransactionIfActive(final Transaction tx) {
-        if (tx != null && tx.isActive()) {
-            Logger logger = LoggerFactory.getLogger(LoggingManager.TAG);
-            logger.trace("Rolling back transaction {} for thread {}", tx, Thread.currentThread().getId());
-            tx.rollback();
+        if (tx != null) {
+            try {
+                if (tx.isActive()) {
+                    Logger logger = LoggerFactory.getLogger(LoggingManager.TAG);
+                    logger.trace("Rolling back transaction {} for thread {}", tx, Thread.currentThread().getId());
+                    tx.rollback();
+                }
+            }
+            finally {
+                getDs().removeTransaction();
+            }
         }
-        getDs().removeTransaction();
     }
 }
