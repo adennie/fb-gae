@@ -9,7 +9,7 @@
     <relativePath />
   </parent>
   <artifactId>fb-gae</artifactId>
-  <version>1.0.4-SNAPSHOT</version>
+  <version>1.0.4</version>
 
   <dependencyManagement>
     <dependencies>
@@ -82,4 +82,8 @@
 
 
   </dependencies>
+
+  <scm>
+    <tag>v1.0.4</tag>
+  </scm>
 </project>
