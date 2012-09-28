@@ -17,9 +17,18 @@ import com.google.common.collect.ImmutableMap;
 public class Tasks {
     private static int MAX_TRIES = 3;
 
-    public static void queueTask(final String url, final ImmutableMap<String, String> args) {
+    public static void queueTask(final String url,
+            final ImmutableMap<String, String> args) {
+        queueTask(url, args, null);
+    }
+
+    public static void queueTask(final String url,
+            final ImmutableMap<String, String> args,
+            final String taskName) {
 
         TaskOptions task = TaskOptions.Builder.withUrl(url);
+        if (taskName != null)
+            task.taskName(taskName);
         for (Map.Entry<String, String> entry : args.entrySet()) {
             task.param(entry.getKey(), entry.getValue());
         }
@@ -62,7 +71,8 @@ public class Tasks {
 
     }
 
-    private static void handleTaskQueueException(final Integer tryCount, final RuntimeException e) {
+    private static void handleTaskQueueException(final Integer tryCount,
+            final RuntimeException e) {
         Logger logger = LoggerFactory.getLogger(LoggingManager.TAG);
         logger.warn(
                 "Task queueing exception (attempt #" + Integer.toString(tryCount) +
