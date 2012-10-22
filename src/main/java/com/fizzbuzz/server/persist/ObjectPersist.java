@@ -33,7 +33,8 @@ public class ObjectPersist<M extends PersistentObject>
     public M store(final M modelObject) {
 
         // modelObject should not already have an assigned id
-        checkArgument((modelObject.getId() == 0), "store() called on modelObject that was previously stored");
+        if (modelObject.getId() != 0)
+            mLogger.warn("ObjectPersist.store: modelObject already has an assigned entity ID.  This is OK if retrying a failed transaction, but otherwise indicates a problem.");
 
         modelObject.setCreationDate(Calendar.getInstance().getTime());
 

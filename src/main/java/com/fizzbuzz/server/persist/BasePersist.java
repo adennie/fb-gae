@@ -66,7 +66,7 @@ public class BasePersist {
             catch (ConcurrentModificationException cme)
             {
                 Logger logger = LoggerFactory.getLogger(LoggingManager.TAG);
-                logger.warn("Optimistic concurrency failure for thread {}", Thread.currentThread().getId(), cme);
+                logger.warn("Optimistic concurrency failure for thread {}.  Retrying...", Thread.currentThread().getId(), cme);
             }
         }
     }
