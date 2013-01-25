@@ -8,7 +8,11 @@ import org.restlet.resource.ServerResource;
 
 import com.fizzbuzz.server.biz.ObjectServer;
 
-public class Utils {
+public class Resources {
+
+    // this is just a collection of static methods. Make the constructor private to prevent instantiation.
+    private Resources() {
+    }
 
     public static long checkObjectExists(final ServerResource r,
             final ObjectServer<?> server) {
@@ -18,7 +22,8 @@ public class Utils {
         return id;
     }
 
-    public static void checkResourceExists(final boolean expression, final Object errorMessage) {
+    public static void checkResourceExists(final boolean expression,
+            final Object errorMessage) {
         if (!expression) {
             throw new ResourceException(Status.CLIENT_ERROR_NOT_FOUND, errorMessage.toString());
         }
@@ -37,7 +42,8 @@ public class Utils {
         return result;
     }
 
-    public static <T> T newInstance(final Constructor<T> ctor, final Object... args) {
+    public static <T> T newInstance(final Constructor<T> ctor,
+            final Object... args) {
         T result = null;
 
         try {
@@ -51,7 +57,8 @@ public class Utils {
         return result;
     }
 
-    public static <T> Constructor<T> getConstructor(final Class<T> clazz, final Class<?>... paramTypes) {
+    public static <T> Constructor<T> getConstructor(final Class<T> clazz,
+            final Class<?>... paramTypes) {
         Constructor<T> result = null;
         try {
             result = clazz.getConstructor(paramTypes);

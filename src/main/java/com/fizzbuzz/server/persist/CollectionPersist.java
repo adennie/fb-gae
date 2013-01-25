@@ -5,30 +5,27 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Collection;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fizzbuzz.model.PersistentObject;
 import com.google.appengine.api.datastore.QueryResultIterator;
 import com.google.code.twig.FindCommand.RootFindCommand;
 
 public class CollectionPersist<C extends Collection<M>, M extends PersistentObject>
-        extends BasePersist {
-    protected final Logger mLogger = LoggerFactory.getLogger(LoggingManager.TAG);
+        extends BasePersist<M> {
 
     private final Class<C> mCollectionModelClass;
-    private final Class<M> mCollectionItemModelClass;
 
-    public CollectionPersist(final Class<C> collectionModelClass, final Class<M> collectionItemModelClass) {
+    public CollectionPersist(final Class<C> collectionModelClass,
+            final Class<M> collectionItemModelClass) {
+        super(collectionItemModelClass);
         mCollectionModelClass = checkNotNull(collectionModelClass, "collection model class");
-        mCollectionItemModelClass = checkNotNull(collectionItemModelClass, "collection item model class");
     }
 
     public C get() {
         return get(null);
     }
 
-    public C get(RootFindCommand<M> findCommand) {
+    public C get(final RootFindCommand<M> providedFindCommand) {
+        RootFindCommand<M> findCommand = providedFindCommand;
         C coll = newCollectionInstance();
         if (findCommand == null)
             findCommand = getRootFindCommand();
@@ -57,13 +54,10 @@ public class CollectionPersist<C extends Collection<M>, M extends PersistentObje
     }
 
     // delete all the entities in the specified collection
-    public void delete(final C collection, final ObjectPersist<M> itemPersist) {
+    public void delete(final C collection,
+            final ObjectPersist<M> itemPersist) {
         ((BaseDatastore) getDs()).batchKeyDelete(collection, itemPersist);
 
-    }
-
-    protected RootFindCommand<M> getRootFindCommand() {
-        return DatastoreHelper.getDs().find().type(mCollectionItemModelClass);
     }
 
     protected C newCollectionInstance() {
@@ -71,7 +65,7 @@ public class CollectionPersist<C extends Collection<M>, M extends PersistentObje
     }
 
     protected Class<M> getCollectionItemModelClass() {
-        return mCollectionItemModelClass;
+        return getModelClass();
     }
 
 }

@@ -14,16 +14,11 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 
 public class ObjectPersist<M extends PersistentObject>
-        extends BasePersist {
-    protected final Logger mLogger = LoggerFactory.getLogger(LoggingManager.TAG);
-    private final Class<M> mModelClass;
+        extends BasePersist<M> {
+    private final Logger mLogger = LoggerFactory.getLogger(LoggingManager.TAG);
 
     public ObjectPersist(final Class<M> modelClass) {
-        mModelClass = checkNotNull(modelClass, "model class");
-    }
-
-    public Class<M> getModelClass() {
-        return mModelClass;
+        super(modelClass);
     }
 
     public boolean entityExists(final long id) {
@@ -96,7 +91,7 @@ public class ObjectPersist<M extends PersistentObject>
     // for deleting unassociated objects when all you have is the ID, and you don't want to fetch it first
     public void delete(final long id) {
         // create a dummy object to make twig happy
-        M dummy = newInstance(mModelClass, id);
+        M dummy = newInstance(getModelClass(), id);
         delete(dummy);
     }
 
@@ -105,10 +100,10 @@ public class ObjectPersist<M extends PersistentObject>
     }
 
     protected String getKind() {
-        return getKind(mModelClass);
+        return getKind(getModelClass());
     }
 
-    protected void stamp(final M modelObject) {
+    protected void stamp(@SuppressWarnings("unused") final M modelObject) {
         // no-op for now. Consider implementing a last modified timestamp in the future, and updating it here
     }
 

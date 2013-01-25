@@ -1,10 +1,11 @@
 package com.fizzbuzz.server.resource;
 
+import org.restlet.data.Status;
 import org.restlet.resource.ResourceException;
 
-import com.fizzbuzz.server.biz.ReadOnlyCollectionServer;
+import com.fizzbuzz.server.biz.WriteOnlyCollectionServer;
 
-public abstract class ReadOnlyCollectionServerResource<S extends ReadOnlyCollectionServer<C>, C, M>
+public abstract class WriteOnlyCollectionServerResource<S extends WriteOnlyCollectionServer<M>, M>
         extends AbstractServerResource<S> {
 
     @Override
@@ -12,10 +13,11 @@ public abstract class ReadOnlyCollectionServerResource<S extends ReadOnlyCollect
         super.doInit(server);
     }
 
-    public C getResource() {
-        C result = null;
+    public M postResource(final M modelObject) {
+        M result = null;
         try {
-            result = getServer().get();
+            result = getServer().add(modelObject);
+            getResponse().setStatus(Status.SUCCESS_CREATED);
         }
         catch (RuntimeException e) {
             doCatch(e);

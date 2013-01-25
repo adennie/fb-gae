@@ -5,7 +5,7 @@ import org.restlet.resource.ResourceException;
 import com.fizzbuzz.server.biz.ReadOnlySingletonServer;
 
 public class ReadOnlySingletonServerResource<S extends ReadOnlySingletonServer<M>, M>
-        extends BaseServerResource<S> {
+        extends AbstractServerResource<S> {
 
     @Override
     protected void doInit(final S server) throws ResourceException {

@@ -5,5 +5,5 @@ public abstract class ReadWriteSingletonServer<M>
 
     abstract public void set(final M modelObject);
 
-    abstract public void clear();
+    abstract public void reset();
 }

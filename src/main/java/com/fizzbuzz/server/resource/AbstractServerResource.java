@@ -10,9 +10,9 @@ import com.fizzbuzz.exception.ConflictException;
 import com.fizzbuzz.exception.NotFoundException;
 import com.fizzbuzz.server.biz.BaseServer;
 
-public abstract class BaseServerResource<S extends BaseServer>
+public abstract class AbstractServerResource<S extends BaseServer>
         extends ServerResource {
-    protected final Logger mLogger = LoggerFactory.getLogger(LoggingManager.TAG);
+    private final Logger mLogger = LoggerFactory.getLogger(LoggingManager.TAG);
     private S mServer;
 
     protected void doInit(final S server) throws ResourceException {

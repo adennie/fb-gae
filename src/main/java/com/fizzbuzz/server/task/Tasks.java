@@ -5,7 +5,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fizzbuzz.server.persist.LoggingManager;
 import com.google.appengine.api.taskqueue.InternalFailureException;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.QueueFailureException;
@@ -17,13 +16,16 @@ import com.google.common.collect.ImmutableMap;
 public class Tasks {
     private static int MAX_TRIES = 3;
 
+    protected Tasks() {
+    }
+
     public static void queueTask(final String url,
             final ImmutableMap<String, String> args) {
         queueTask(url, args, null);
     }
 
     public static void queueTask(final String url,
-            final ImmutableMap<String, String> args,
+            final Map<String, String> args,
             final String taskName) {
 
         TaskOptions task = TaskOptions.Builder.withUrl(url);

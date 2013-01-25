@@ -55,8 +55,9 @@ public abstract class ServerUriHelper {
         return mServerResourceClassToUriPatternMap.entrySet();
     }
 
-    public String formatUriTemplate(final String uriTemplate, final ImmutableMap<String, String> uriTokenToValueMap) {
-        // pass thru to mUriHelper
+    public String formatUriTemplate(final String uriTemplate,
+            final ImmutableMap<String, String> uriTokenToValueMap) {
+        // pass thru to UriHelper
         return mUriHelper.formatUriTemplate(uriTemplate, uriTokenToValueMap);
     }
 

@@ -2,18 +2,18 @@ package com.fizzbuzz.server.persist;
 
 import java.util.Collection;
 
-import com.fizzbuzz.model.PersistentObject;
+import com.fizzbuzz.model.SynchronizedObject;
 import com.google.code.twig.FindCommand.RootFindCommand;
 
-public abstract class ParentedCollectionPersist<C extends Collection<M>, M extends PersistentObject, P extends ObjectPersist<?>>
-        extends CollectionPersist<C, M> {
+public class ParentedSynchronizedCollectionPersist<C extends Collection<M>, M extends SynchronizedObject>
+        extends SynchronizedCollectionPersist<C, M> {
 
-    private final ParentedObjectHelper<M> mHelper;
     private final long mParentId;
+    private final ParentedObjectHelper<M> mHelper;
 
-    protected ParentedCollectionPersist(final Class<C> collectionModelClass,
+    public ParentedSynchronizedCollectionPersist(final Class<C> collectionModelClass,
             final Class<M> collectionItemModelClass,
-            final P parentPersist,
+            final ObjectPersist<?> parentPersist,
             final long parentId,
             final String collectionItemKind) {
         super(collectionModelClass, collectionItemModelClass);
@@ -21,7 +21,6 @@ public abstract class ParentedCollectionPersist<C extends Collection<M>, M exten
         mParentId = parentId;
     }
 
-    // since this is a parented collection, we need to override getRootFindCommand to factor in the parent info
     @Override
     protected RootFindCommand<M> getRootFindCommand() {
         return mHelper.getRootFindCommand();
@@ -30,5 +29,4 @@ public abstract class ParentedCollectionPersist<C extends Collection<M>, M exten
     protected long getParentId() {
         return mParentId;
     }
-
 }

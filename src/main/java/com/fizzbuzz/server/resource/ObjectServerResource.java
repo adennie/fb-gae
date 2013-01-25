@@ -1,6 +1,6 @@
 package com.fizzbuzz.server.resource;
 
-import static com.fizzbuzz.server.resource.Utils.checkObjectExists;
+import static com.fizzbuzz.server.resource.Resources.checkObjectExists;
 
 import org.restlet.data.Status;
 import org.restlet.resource.ResourceException;
@@ -12,7 +12,7 @@ import com.fizzbuzz.server.biz.ObjectServer;
  * Base server resource class for objects with IDs (fetched from the URL).
  */
 public abstract class ObjectServerResource<S extends ObjectServer<M>, M extends PersistentObject>
-        extends BaseServerResource<S> {
+        extends AbstractServerResource<S> {
     private long mId;
 
     @Override

@@ -6,10 +6,9 @@ import org.restlet.representation.Representation;
 import org.restlet.representation.Variant;
 import org.restlet.resource.ResourceException;
 
-import com.fizzbuzz.model.PersistentObject;
 import com.fizzbuzz.server.biz.ReadWriteCollectionServer;
 
-public abstract class ReadWriteCollectionServerResource<S extends ReadWriteCollectionServer<C, M>, C, M extends PersistentObject>
+public abstract class ReadWriteCollectionServerResource<S extends ReadWriteCollectionServer<C, M>, C, M>
         extends ReadOnlyCollectionServerResource<S, C, M> {
 
     @Override
@@ -31,7 +30,8 @@ public abstract class ReadWriteCollectionServerResource<S extends ReadWriteColle
     }
 
     @Override
-    public Representation toRepresentation(final Object source, final Variant target) {
+    public Representation toRepresentation(final Object source,
+            final Variant target) {
         Representation result = super.toRepresentation(source, target);
         // the POST method creates a new collection item, which is returned as the response body. We should specify the
         // Content-Location header to indicate the URI of that resource. The value of the URI was already stored into

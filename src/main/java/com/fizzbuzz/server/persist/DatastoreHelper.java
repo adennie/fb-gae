@@ -53,11 +53,13 @@ public abstract class DatastoreHelper {
     abstract protected boolean datastoreIsEmpty();
 
     // commonly overridden in subclass
+    @SuppressWarnings("static-method")
     protected StandardObjectDatastore createDs() {
         return new BaseDatastore(new BaseTwigConfiguration());
     }
 
     // commonly overridden in subclass
+    @SuppressWarnings("static-method")
     protected void purgeDatastore() {
         checkState((BaseApplication.getExecutionContext() == BaseApplication.ExecutionContext.DEVELOPMENT),
                 "not running in development environment");
@@ -89,6 +91,8 @@ public abstract class DatastoreHelper {
         allocDatastoreForThread();
     }
 
+    // don't make this static; if we did, subclasses wouldn't be able to override it
+    @SuppressWarnings("static-method")
     public void onRequestComplete() {
         releaseDatastoreForThread();
     }
@@ -111,9 +115,9 @@ public abstract class DatastoreHelper {
         }
     }
 
-    private void releaseDatastoreForThread() {
+    private static void releaseDatastoreForThread() {
         synchronized (mDsMapLock) {
-            mDsMap.remove(getDs());
+            mDsMap.remove(Thread.currentThread().getId());
         }
     }
 
@@ -211,19 +215,18 @@ public abstract class DatastoreHelper {
     // start a transaction if one isn't already in place. If one is already in place, return null.
     private Transaction beginTransaction() {
 
-        Transaction tx = getDs().getTransaction();
-        if (tx == null) {
-            tx = getDs().beginTransaction();
-            mLogger.trace("Transaction {} started for thread {}", tx, Thread.currentThread().getId());
-            return tx;
+        Transaction result = null;
+        if (getDs().getTransaction() == null) {
+            result = getDs().beginTransaction();
+            mLogger.trace("Transaction {} started for thread {}", result, Thread.currentThread().getId());
         }
-
         else {
             mLogger.debug(
                     "BasePersist.beginTransaction: transaction already in progress for thread{}, no new transaction started",
                     Thread.currentThread().getId());
-            return null;
         }
+
+        return result;
     }
 
     // not currently using this method, but saving it for later. Commenting out to eliminate warning about unused code.
