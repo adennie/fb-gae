@@ -53,13 +53,11 @@ public abstract class DatastoreHelper {
     abstract protected boolean datastoreIsEmpty();
 
     // commonly overridden in subclass
-    @SuppressWarnings("static-method")
     protected StandardObjectDatastore createDs() {
         return new BaseDatastore(new BaseTwigConfiguration());
     }
 
     // commonly overridden in subclass
-    @SuppressWarnings("static-method")
     protected void purgeDatastore() {
         checkState((BaseApplication.getExecutionContext() == BaseApplication.ExecutionContext.DEVELOPMENT),
                 "not running in development environment");
@@ -91,8 +89,6 @@ public abstract class DatastoreHelper {
         allocDatastoreForThread();
     }
 
-    // don't make this static; if we did, subclasses wouldn't be able to override it
-    @SuppressWarnings("static-method")
     public void onRequestComplete() {
         releaseDatastoreForThread();
     }
@@ -147,7 +143,8 @@ public abstract class DatastoreHelper {
     /*
      * Executes the task in a transaction. If a timeout occurs, retry a few times, with an exponential backoff. GAE
      * automatically retries non-transactional datastore operations, but for transactions, we have to do it ourselves.
-     * If a concurrent modification exception occurs, retry until success. If some other exception occurs, propagate it upward.
+     * If a concurrent modification exception occurs, retry until success. If some other exception occurs, propagate it
+     * upward.
      */
     public void doInTransaction(final Transactable task,
             final boolean mustBeOuterTx)
@@ -169,8 +166,7 @@ public abstract class DatastoreHelper {
                 task.run();
                 commitTransaction(tx);
                 done = true;
-            }
-            catch (DatastoreTimeoutException dte) {
+            } catch (DatastoreTimeoutException dte) {
                 mLogger.warn(
                         "Datastore timeout exception (occurrence #" + Integer.toString(timeoutRetryCount + 1) +
                                 ") for thread {}.", Thread.currentThread().getId(), dte);
@@ -180,8 +176,7 @@ public abstract class DatastoreHelper {
                     try {
                         Thread.sleep(timeoutRetryWaitMs);
                         timeoutRetryWaitMs *= 2; // wait longer next time
-                    }
-                    catch (InterruptedException e1) {
+                    } catch (InterruptedException e1) {
                         e1.printStackTrace();
                     }
                     timeoutRetryCount++;
@@ -193,8 +188,7 @@ public abstract class DatastoreHelper {
                             + ", but encountered DatastoreTimeoutException each time.  Giving up.");
                 }
 
-            }
-            catch (ConcurrentModificationException cme)
+            } catch (ConcurrentModificationException cme)
             {
                 mLogger.warn(
                         "Datastore optimistic concurrency exception (attempt #" + Integer.toString(tryCount) +
@@ -250,8 +244,7 @@ public abstract class DatastoreHelper {
 
             try {
                 tx.commit();
-            }
-            finally {
+            } finally {
                 getDs().removeTransaction();
             }
         }
@@ -264,8 +257,7 @@ public abstract class DatastoreHelper {
                     mLogger.trace("Rolling back transaction {} for thread {}", tx, Thread.currentThread().getId());
                     tx.rollback();
                 }
-            }
-            finally {
+            } finally {
                 getDs().removeTransaction();
             }
         }
