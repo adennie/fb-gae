@@ -10,6 +10,11 @@
   </parent>
   <artifactId>fb-gae</artifactId>
   <version>1.0.8-SNAPSHOT</version>
+  
+  <properties>
+    <gae.version>1.7.4</gae.version>
+    <twig.version>2.0-rc</twig.version>
+  </properties>
 
   <dependencyManagement>
     <dependencies>

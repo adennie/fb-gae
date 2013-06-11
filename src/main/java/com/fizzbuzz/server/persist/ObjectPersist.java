@@ -1,21 +1,24 @@
 package com.fizzbuzz.server.persist;
 
+import com.fizzbuzz.model.PersistentObject;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Calendar;
+
 import static com.fizzbuzz.util.base.Reflections.newInstance;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import java.util.Calendar;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.fizzbuzz.model.PersistentObject;
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
-
 public class ObjectPersist<M extends PersistentObject>
         extends BasePersist<M> {
     private final Logger mLogger = LoggerFactory.getLogger(LoggingManager.TAG);
+
+    static String getKind(final Class<?> c) {
+        return getConfiguration().typeToKind(c);
+    }
 
     public ObjectPersist(final Class<M> modelClass) {
         super(modelClass);
@@ -29,7 +32,8 @@ public class ObjectPersist<M extends PersistentObject>
 
         // modelObject should not already have an assigned id
         if (modelObject.getId() != 0)
-            mLogger.warn("ObjectPersist.store: modelObject already has an assigned entity ID.  This is OK if retrying a failed transaction, but otherwise indicates a problem.");
+            mLogger.warn("ObjectPersist.store: modelObject already has an assigned entity ID.  This is OK if retrying" +
+                    " a failed transaction, but otherwise indicates a problem.");
 
         modelObject.setCreationDate(Calendar.getInstance().getTime());
 
@@ -40,10 +44,6 @@ public class ObjectPersist<M extends PersistentObject>
         mLogger.trace("ObjectPersist.store: stored new object - {}", modelObject);
 
         return modelObject;
-    }
-
-    protected void storeToDs(final M modelObject) {
-        getDs().store(modelObject);
     }
 
     public M load(final long id) {
@@ -81,11 +81,12 @@ public class ObjectPersist<M extends PersistentObject>
         // modelObject must already have an assigned id
         checkArgument((modelObject.getId() != 0), "delete called on modelObject that was not previously stored");
 
-        if (!getDs().isAssociated(modelObject)) {
-            getDs().associate(modelObject, getKey(modelObject));
-        }
+        // associate the object if necessary.  If there was already an object associated with the key, this
+        // will return that object (which may not be the same instance as modelObject, if a dummy "id-only" modelObject
+        // was passed in and there is already a corresponding real instance in the cache)
+        M associatedObject = getDs().associate(modelObject, getKey(modelObject));
 
-        getDs().delete(modelObject);
+        getDs().delete(associatedObject);
     }
 
     // for deleting unassociated objects when all you have is the ID, and you don't want to fetch it first
@@ -99,16 +100,16 @@ public class ObjectPersist<M extends PersistentObject>
         return KeyFactory.createKey(getKind(), id);
     }
 
+    protected void storeToDs(final M modelObject) {
+        getDs().store(modelObject);
+    }
+
     protected String getKind() {
         return getKind(getModelClass());
     }
 
     protected void stamp(@SuppressWarnings("unused") final M modelObject) {
         // no-op for now. Consider implementing a last modified timestamp in the future, and updating it here
-    }
-
-    static String getKind(final Class<?> c) {
-        return getConfiguration().typeToKind(c);
     }
 
     Key getKey(final M modelObject) {

@@ -1,77 +1,47 @@
 package com.fizzbuzz.server.persist;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
-
-import java.util.ConcurrentModificationException;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.fizzbuzz.server.resource.BaseApplication;
 import com.google.appengine.api.datastore.DatastoreTimeoutException;
 import com.google.appengine.api.datastore.Transaction;
 import com.google.code.twig.configuration.Configuration;
 import com.google.code.twig.standard.StandardObjectDatastore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ConcurrentModificationException;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
+
 
 public abstract class DatastoreHelper {
-    private final Logger mLogger = LoggerFactory.getLogger(LoggingManager.TAG);
-    private static int MAX_TIMEOUT_RETRIES = 3;
     private static final Object mDsMapLock = new Object();
+    private static int MAX_TIMEOUT_RETRIES = 3;
     private static Map<Long, StandardObjectDatastore> mDsMap;
 
     static {
         mDsMap = new HashMap<Long, StandardObjectDatastore>();
     }
 
-    /** Alternate interface to Runnable for executing transactions */
-    public interface Transactable
-    {
-        void run();
-    }
-
-    /**
-     * Provides a place to put the result. Note that the result
-     * is only valid if the transaction completes successfully; otherwise
-     * it should be ignored because it is not necessarily valid.
-     */
-    abstract public static class TransactableWithResult<R>
-            implements Transactable
-    {
-        protected R result;
-
-        public R getResult() {
-            return this.result;
-        }
-    }
-
-    // to be overridden in subclass
-    abstract protected void registerKindNames();
-
-    abstract protected boolean datastoreIsEmpty();
-
-    // commonly overridden in subclass
-    protected StandardObjectDatastore createDs() {
-        return new BaseDatastore(new BaseTwigConfiguration());
-    }
-
-    // commonly overridden in subclass
-    protected void purgeDatastore() {
-        checkState((BaseApplication.getExecutionContext() == BaseApplication.ExecutionContext.DEVELOPMENT),
-                "not running in development environment");
-    }
-
-    // commonly overridden in subclass
-    protected void seedDatastore() {
-    }
+    private final Logger mLogger = LoggerFactory.getLogger(LoggingManager.TAG);
 
     // get the datastore allocated to this thread
     public static StandardObjectDatastore getDs() {
         synchronized (mDsMapLock) {
             return checkNotNull(mDsMap.get(Thread.currentThread().getId()), "datastore not initialized");
         }
+    }
+
+    private static void releaseDatastoreForThread() {
+        synchronized (mDsMapLock) {
+            mDsMap.remove(Thread.currentThread().getId());
+        }
+    }
+
+    static Configuration getConfiguration() {
+        return DatastoreHelper.getDs().getConfiguration();
     }
 
     public void onAppStartup() {
@@ -104,34 +74,12 @@ public abstract class DatastoreHelper {
         seedDatastore();
     }
 
-    protected void allocDatastoreForThread() {
-        synchronized (mDsMapLock) {
-            // instantiate a Twig datastore object and store it in the map, keyed by the current thread ID
-            mDsMap.put(Thread.currentThread().getId(), createDs());
-        }
-    }
-
-    private static void releaseDatastoreForThread() {
-        synchronized (mDsMapLock) {
-            mDsMap.remove(Thread.currentThread().getId());
-        }
-    }
-
-    private void bounceDatastoreForThread() {
-        releaseDatastoreForThread();
-        allocDatastoreForThread();
-    }
-
-    static Configuration getConfiguration() {
-        return DatastoreHelper.getDs().getConfiguration();
-    }
-
     public <R> R doInTransactionWithResult(final TransactableWithResult<R> t) {
         return doInTransactionWithResult(t, false);
     }
 
     public <R> R doInTransactionWithResult(final TransactableWithResult<R> t,
-            final boolean mustBeOuterTx) {
+                                           final boolean mustBeOuterTx) {
         doInTransaction(t, mustBeOuterTx);
         return t.getResult();
     }
@@ -147,13 +95,11 @@ public abstract class DatastoreHelper {
      * upward.
      */
     public void doInTransaction(final Transactable task,
-            final boolean mustBeOuterTx)
-    {
+                                final boolean mustBeOuterTx) {
         boolean done = false;
         int timeoutRetryWaitMs = 100;
         int timeoutRetryCount = 0;
-        for (int tryCount = 0; !done; tryCount++)
-        {
+        for (int tryCount = 0; !done; tryCount++) {
             Transaction tx = beginTransaction();
 
             if (tx == null && mustBeOuterTx == true) {
@@ -161,8 +107,7 @@ public abstract class DatastoreHelper {
                         "attempted to start an outer transaction when a transaction was already in progress.");
             }
 
-            try
-            {
+            try {
                 task.run();
                 commitTransaction(tx);
                 done = true;
@@ -180,16 +125,14 @@ public abstract class DatastoreHelper {
                         e1.printStackTrace();
                     }
                     timeoutRetryCount++;
-                }
-                else {
+                } else {
                     throw new PersistenceException("Tried " + Integer.toString(MAX_TIMEOUT_RETRIES)
                             + " times to execute datastore transaction for thread "
                             + Long.toString(Thread.currentThread().getId())
                             + ", but encountered DatastoreTimeoutException each time.  Giving up.");
                 }
 
-            } catch (ConcurrentModificationException cme)
-            {
+            } catch (ConcurrentModificationException cme) {
                 mLogger.warn(
                         "Datastore optimistic concurrency exception (attempt #" + Integer.toString(tryCount) +
                                 ") for thread {}.", Thread.currentThread().getId(), cme);
@@ -206,6 +149,41 @@ public abstract class DatastoreHelper {
         }
     }
 
+    // to be overridden in subclass
+    abstract protected void registerKindNames();
+
+    abstract protected boolean datastoreIsEmpty();
+
+    // commonly overridden in subclass
+    protected StandardObjectDatastore createDs() {
+        return new BaseDatastore(new BaseTwigConfiguration());
+    }
+
+    // commonly overridden in subclass
+    protected void purgeDatastore() {
+        checkState((BaseApplication.getExecutionContext() == BaseApplication.ExecutionContext.DEVELOPMENT),
+                "not running in development environment");
+    }
+
+    // commonly overridden in subclass
+    protected void seedDatastore() {
+    }
+
+    protected void allocDatastoreForThread() {
+        synchronized (mDsMapLock) {
+            long threadId = Thread.currentThread().getId();
+            if (mDsMap.get(threadId) == null) {
+                // instantiate a Twig datastore object and store it in the map, keyed by the current thread ID
+                mDsMap.put(threadId, createDs());
+            }
+        }
+    }
+
+    private void bounceDatastoreForThread() {
+        releaseDatastoreForThread();
+        allocDatastoreForThread();
+    }
+
     // start a transaction if one isn't already in place. If one is already in place, return null.
     private Transaction beginTransaction() {
 
@@ -213,14 +191,30 @@ public abstract class DatastoreHelper {
         if (getDs().getTransaction() == null) {
             result = getDs().beginTransaction();
             mLogger.trace("Transaction {} started for thread {}", result, Thread.currentThread().getId());
-        }
-        else {
+        } else {
             mLogger.debug(
-                    "BasePersist.beginTransaction: transaction already in progress for thread{}, no new transaction started",
+                    "BasePersist.beginTransaction: transaction already in progress for thread{}, " +
+                            "no new transaction started",
                     Thread.currentThread().getId());
         }
 
         return result;
+    }
+
+    private void commitTransaction(final Transaction tx) {
+        if (tx != null) {
+            mLogger.trace("Committing transaction {} for thread {}", tx, Thread.currentThread().getId());
+            tx.commit();
+        }
+    }
+
+    private void rollbackTransactionIfActive(final Transaction tx) {
+        if (tx != null) {
+            if (tx.isActive()) {
+                mLogger.trace("Rolling back transaction {} for thread {}", tx, Thread.currentThread().getId());
+                tx.rollback();
+            }
+        }
     }
 
     // not currently using this method, but saving it for later. Commenting out to eliminate warning about unused code.
@@ -238,29 +232,24 @@ public abstract class DatastoreHelper {
     // return null;
     // }
 
-    private void commitTransaction(final Transaction tx) {
-        if (tx != null) {
-            mLogger.trace("Committing transaction {} for thread {}", tx, Thread.currentThread().getId());
-
-            try {
-                tx.commit();
-            } finally {
-                getDs().removeTransaction();
-            }
-        }
+    /**
+     * Alternate interface to Runnable for executing transactions
+     */
+    public interface Transactable {
+        void run();
     }
 
-    private void rollbackTransactionIfActive(final Transaction tx) {
-        if (tx != null) {
-            try {
-                if (tx.isActive()) {
-                    mLogger.trace("Rolling back transaction {} for thread {}", tx, Thread.currentThread().getId());
-                    tx.rollback();
-                }
-            } finally {
-                getDs().removeTransaction();
-            }
+    /**
+     * Provides a place to put the result. Note that the result
+     * is only valid if the transaction completes successfully; otherwise
+     * it should be ignored because it is not necessarily valid.
+     */
+    abstract public static class TransactableWithResult<R>
+            implements Transactable {
+        protected R result;
+
+        public R getResult() {
+            return this.result;
         }
     }
-
 }

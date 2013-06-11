@@ -1,13 +1,13 @@
 package com.fizzbuzz.server.persist;
 
-import static com.fizzbuzz.util.base.Reflections.newInstance;
-import static com.google.common.base.Preconditions.checkNotNull;
+import com.fizzbuzz.model.PersistentObject;
+import com.google.appengine.api.datastore.QueryResultIterator;
+import com.google.code.twig.FindCommand;
 
 import java.util.Collection;
 
-import com.fizzbuzz.model.PersistentObject;
-import com.google.appengine.api.datastore.QueryResultIterator;
-import com.google.code.twig.FindCommand.RootFindCommand;
+import static com.fizzbuzz.util.base.Reflections.newInstance;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class CollectionPersist<C extends Collection<M>, M extends PersistentObject>
         extends BasePersist<M> {
@@ -24,8 +24,8 @@ public class CollectionPersist<C extends Collection<M>, M extends PersistentObje
         return get(null);
     }
 
-    public C get(final RootFindCommand<M> providedFindCommand) {
-        RootFindCommand<M> findCommand = providedFindCommand;
+    public C get(final FindCommand.RootFindCommand<M> providedFindCommand) {
+        FindCommand.RootFindCommand<M> findCommand = providedFindCommand;
         C coll = newCollectionInstance();
         if (findCommand == null)
             findCommand = getRootFindCommand();

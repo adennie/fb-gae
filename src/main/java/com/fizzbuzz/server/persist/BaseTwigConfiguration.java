@@ -1,21 +1,21 @@
 package com.fizzbuzz.server.persist;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Type;
-
 import com.fizzbuzz.model.PersistentObject;
+import com.fizzbuzz.model.TickStamp;
+import com.fizzbuzz.model.Ticker;
 import com.google.appengine.api.datastore.Text;
 import com.google.code.twig.configuration.DefaultConfiguration;
+import org.slf4j.Logger;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 
 public class BaseTwigConfiguration
         extends DefaultConfiguration {
 
-    public BaseTwigConfiguration() {
-        super(0);
-    }
 
     @Override
-    public int activationDepth(final Field field, final int depth) {
+    public int activationDepth(final Field field, final Integer depth) {
         return depth;
     }
 
@@ -41,7 +41,16 @@ public class BaseTwigConfiguration
 
     @Override
     public boolean embed(final Field field) {
+        if (field.getType().equals(Ticker.class)
+                || field.getType().equals(TickStamp.class))
+            return true;
+
         return false;
+    }
+
+    @Override
+    public String[] denormalise(Field field) {
+        return null;
     }
 
     @Override
@@ -50,8 +59,9 @@ public class BaseTwigConfiguration
     }
 
     @Override
-    public boolean index(final Field field) {
-        if (field.getName().equals("mTickStamp"))
+    public Boolean index(final Field field) {
+        if (field.getType().equals(Ticker.class)
+                || field.getType().equals(TickStamp.class))
             return true;
 
         return false;
@@ -59,7 +69,15 @@ public class BaseTwigConfiguration
 
     @Override
     public boolean store(final Field field) {
+        if (field.getType().equals(Logger.class))
+            return false;
+
         return true;
+    }
+
+    @Override
+    public int serializationThreshold(Field field) {
+        return -1;
     }
 
     @Override

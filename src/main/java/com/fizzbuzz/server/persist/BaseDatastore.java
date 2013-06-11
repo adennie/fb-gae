@@ -1,10 +1,5 @@
 package com.fizzbuzz.server.persist;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-
 import com.fizzbuzz.model.PersistentObject;
 import com.fizzbuzz.model.TickStamp;
 import com.fizzbuzz.model.Ticker;
@@ -16,25 +11,31 @@ import com.google.appengine.api.datastore.Link;
 import com.google.appengine.api.datastore.PhoneNumber;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.QueryResultIterator;
+import com.google.code.twig.Settings;
 import com.google.code.twig.configuration.Configuration;
-import com.google.code.twig.conversion.CombinedConverter;
-import com.google.code.twig.conversion.SpecificConverter;
 import com.google.code.twig.standard.StandardObjectDatastore;
 import com.google.code.twig.util.EntityToKeyFunction;
 import com.google.common.collect.Iterators;
+import com.vercer.convert.CompositeTypeConverter;
+import com.vercer.convert.Converter;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 public class BaseDatastore
         extends StandardObjectDatastore {
 
     public BaseDatastore(final Configuration config) {
-        super(config);
+        super(Settings.defaults(), config, 0, false);
     }
 
     public final void deleteEntityGroup(final Key rootKey) {
         Query query = new Query(rootKey);
         query.setKeysOnly();
         FetchOptions options = FetchOptions.Builder.withChunkSize(100);
-        Iterator<Entity> entities = servicePrepare(query).asIterator(options);
+        Iterator<Entity> entities = servicePrepare(query, Settings.defaults()).asIterator(options);
         Iterator<Key> keys = Iterators.transform(entities, new EntityToKeyFunction());
         Iterator<List<Key>> partitioned = Iterators.partition(keys, 100);
         while (partitioned.hasNext()) {
@@ -72,18 +73,17 @@ public class BaseDatastore
     }
 
     @Override
-    protected CombinedConverter createTypeConverter() {
-        CombinedConverter converter = super.createTypeConverter();
+    protected CompositeTypeConverter createTypeConverter() {
+        CompositeTypeConverter converter = super.createTypeConverter();
 
-        // append converters that convert from TickStamp to Long and vice versa
-        converter.append(new SpecificConverter<TickStamp, Long>() {
+        // register converters that convert from TickStamp to Long and vice versa
+        converter.register(new Converter<TickStamp, Long>() {
             @Override
-            public Long convert(final TickStamp tickStamp)
-            {
+            public Long convert(final TickStamp tickStamp) {
                 return tickStamp.getTickValue();
             }
         });
-        converter.append(new SpecificConverter<Long, TickStamp>() {
+        converter.register(new Converter<Long, TickStamp>() {
             @Override
             public TickStamp convert(final Long value)
             {
@@ -91,15 +91,15 @@ public class BaseDatastore
             }
         });
 
-        // append converters that convert from Ticker to Long and vice versa
-        converter.append(new SpecificConverter<Ticker, Long>() {
+        // register converters that convert from Ticker to Long and vice versa
+        converter.register(new Converter<Ticker, Long>() {
             @Override
             public Long convert(final Ticker ticker)
             {
                 return ticker.getTickStamp().getTickValue();
             }
         });
-        converter.append(new SpecificConverter<Long, Ticker>() {
+        converter.register(new Converter<Long, Ticker>() {
             @Override
             public Ticker convert(final Long value)
             {
@@ -107,15 +107,15 @@ public class BaseDatastore
             }
         });
 
-        // append converters that convert from String to Link and vice versa
-        converter.append(new SpecificConverter<String, Link>() {
+        // register converters that convert from String to Link and vice versa
+        converter.register(new Converter<String, Link>() {
             @Override
             public Link convert(final String string)
             {
                 return new Link(string);
             }
         });
-        converter.append(new SpecificConverter<Link, String>() {
+        converter.register(new Converter<Link, String>() {
             @Override
             public String convert(final Link link)
             {
@@ -123,15 +123,15 @@ public class BaseDatastore
             }
         });
 
-        // append converters that convert from String to PhoneNumber and vice versa
-        converter.append(new SpecificConverter<String, PhoneNumber>() {
+        // register converters that convert from String to PhoneNumber and vice versa
+        converter.register(new Converter<String, PhoneNumber>() {
             @Override
             public PhoneNumber convert(final String string)
             {
                 return new PhoneNumber(string);
             }
         });
-        converter.append(new SpecificConverter<PhoneNumber, String>() {
+        converter.register(new Converter<PhoneNumber, String>() {
             @Override
             public String convert(final PhoneNumber ph)
             {
@@ -139,15 +139,15 @@ public class BaseDatastore
             }
         });
 
-        // append converters that convert from String to Email and vice versa
-        converter.append(new SpecificConverter<String, Email>() {
+        // register converters that convert from String to Email and vice versa
+        converter.register(new Converter<String, Email>() {
             @Override
             public Email convert(final String string)
             {
                 return new Email(string);
             }
         });
-        converter.append(new SpecificConverter<Email, String>() {
+        converter.register(new Converter<Email, String>() {
             @Override
             public String convert(final Email email)
             {

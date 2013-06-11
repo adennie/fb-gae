@@ -1,10 +1,12 @@
 package com.fizzbuzz.server.persist;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 
-import com.google.code.twig.FindCommand.RootFindCommand;
+import com.google.code.twig.FindCommand;
 import com.google.code.twig.configuration.Configuration;
 import com.google.code.twig.standard.BaseObjectDatastore;
+
+import static com.google.common.base.Preconditions.checkNotNull;
+
 
 public class BasePersist<M> {
 
@@ -18,7 +20,7 @@ public class BasePersist<M> {
         return mModelClass;
     }
 
-    protected RootFindCommand<M> getRootFindCommand() {
+    protected FindCommand.RootFindCommand<M> getRootFindCommand() {
         return DatastoreHelper.getDs().find().type(getModelClass());
     }
 
