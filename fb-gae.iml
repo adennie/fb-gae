@@ -17,7 +17,7 @@
     <orderEntry type="module" module-name="fb-restlet" />
     <orderEntry type="module" module-name="fb-util" />
     <orderEntry type="library" name="Maven: org.jsoup:jsoup:1.6.2" level="project" />
-    <orderEntry type="library" name="Maven: com.google.appengine:appengine-api-1.0-sdk:1.7.4" level="project" />
+    <orderEntry type="library" name="Maven: com.google.appengine:appengine-api-1.0-sdk:1.8.0" level="project" />
     <orderEntry type="module" module-name="twig-persist" />
     <orderEntry type="library" name="Maven: com.google.appengine:appengine-api-labs:1.7.3" level="project" />
     <orderEntry type="library" name="Maven: javax.servlet:servlet-api:2.4" level="project" />
