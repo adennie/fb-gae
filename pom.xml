@@ -4,7 +4,7 @@
   <parent>
     <groupId>com.fizzbuzz</groupId>
     <artifactId>maven-parent</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <!-- silence the warning about the parent artifactId being different than the one in the multi-module pom.xml in the parent directory -->
     <relativePath />
   </parent>
@@ -12,7 +12,11 @@
   <version>1.0.8-SNAPSHOT</version>
   
   <properties>
+    <fb-model.version>1.0.3</fb-model.version>
+    <fb-restlet.version>1.0.4</fb-restlet.version>
+    <fb-util.version>1.0.3</fb-util.version>
     <gae.version>1.8.0</gae.version>
+    <guava.version>10.0.1</guava.version>
     <twig.version>2.0-rc</twig.version>
   </properties>
 
@@ -41,19 +45,19 @@
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>fb-model</artifactId>
-      <version>1.0.3-SNAPSHOT</version>
+      <version>${fb-model.version}</version>
     </dependency>
 
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>fb-restlet</artifactId>
-      <version>1.0.4-SNAPSHOT</version>
+      <version>${fb-restlet.version}</version>
     </dependency>
 
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>fb-util</artifactId>
-      <version>1.0.3-SNAPSHOT</version>
+      <version>${fb-util.version}</version>
     </dependency>
 
     <!-- 3rd party dependencies -->
@@ -71,6 +75,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
+      <version>${guava.version}</version>
     </dependency>
 
     <dependency>
