@@ -99,6 +99,11 @@ public class BaseTwigConfiguration
     public Type typeOf(final Field field) {
         String fieldName = field.getName();
 
+        // Ticker and TickStamp fields should be store as Longs, using the converters registered by BaseDatastore
+        if (field.getType().equals(TickStamp.class)
+            || field.getType().equals(Ticker.class))
+            return Long.class;
+
         // Text fields (up to 1MB, not indexable). Remember, String fields are limited to 500 characters.
         if (fieldName.equals("mNotes")) // all fields named "mNotes" are Texts
             return Text.class;
