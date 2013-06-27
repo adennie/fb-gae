@@ -15,7 +15,7 @@
     <fb-model.version>1.0.3</fb-model.version>
     <fb-restlet.version>1.0.4</fb-restlet.version>
     <fb-util.version>1.0.3</fb-util.version>
-    <gae.version>1.8.0</gae.version>
+    <gae.version>1.8.1.1</gae.version>
     <guava.version>10.0.1</guava.version>
     <twig.version>2.0-rc</twig.version>
   </properties>
