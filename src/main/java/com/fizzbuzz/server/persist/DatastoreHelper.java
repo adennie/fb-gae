@@ -188,7 +188,8 @@ public abstract class DatastoreHelper {
     private Transaction beginTransaction() {
 
         Transaction result = null;
-        if (getDs().getTransaction() == null) {
+        Transaction lastTx = getDs().getTransaction();
+        if (lastTx == null || !lastTx.isActive()){
             result = getDs().beginTransaction();
             mLogger.trace("Transaction {} started for thread {}", result, Thread.currentThread().getId());
         } else {
